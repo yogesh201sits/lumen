@@ -11,6 +11,11 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
 app.post("/conversation", async(req, res) => {
   console.log("Received conversation request:", req.body);
   const { query } = req.body;
