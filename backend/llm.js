@@ -24,6 +24,7 @@ const model = new ChatGroq({
 
 
 export default async function res(question, context) {
+  console.log("Processing LLM request for question:", question);
   try {
     const formatInstructions = parser.getFormatInstructions();
 
