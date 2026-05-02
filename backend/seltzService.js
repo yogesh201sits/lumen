@@ -1,9 +1,11 @@
+// Search service using Seltz API
 import dotenv from "dotenv";
 dotenv.config();
 
 import { Seltz } from "seltz";
 
 export default async function runSearch(query) {
+  console.log("Running search for query:", query);
   
     try {
     const apiKey = process.env.SELTZ_API_KEY;
