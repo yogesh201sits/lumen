@@ -35,6 +35,8 @@ export default async function res(question, context) {
       - Use ONLY the provided context
       - give comprehensive long answers
       - Do NOT hallucinate
+      - Cite sources when possible
+      - Be helpful and accurate
       Return output strictly in this format:
       ${formatInstructions}
 
