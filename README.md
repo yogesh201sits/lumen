@@ -1,6 +1,6 @@
 # PerpWeb
 
-![Logo](./frontend/public/logo.png)
+<img src="./frontend/public/logo.png" alt="Logo" width="150">
 
 A Perplexity-style AI assistant web application with real-time search capabilities.
 
