@@ -3,6 +3,7 @@ import { ChatGroq } from "@langchain/groq";
 import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import * as z from "zod";
 import dotenv from "dotenv";
+import { logInfo, logError } from './utils/logger.js'
 
 dotenv.config();
 
@@ -24,7 +25,7 @@ const model = new ChatGroq({
 
 
 export default async function res(question, context) {
-  console.log("Processing LLM request for question:", question);
+  logInfo("Processing LLM request for question", { question });
   try {
     const formatInstructions = parser.getFormatInstructions();
 
@@ -50,7 +51,7 @@ export default async function res(question, context) {
     const response = await model.invoke(prompt);
 
     const parsed = await parser.parse(response.content);
-    console.log(parsed)
+    logInfo("LLM response parsed successfully");
     return parsed;
   } catch (err) {
     console.error("Error parsing LLM output:", err);
