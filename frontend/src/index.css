@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light mode = clean white with orange accent */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+
+    --primary: 18 95% 54%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 22 100% 60%;
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 12%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 18 95% 96%;
+    --accent-foreground: 18 95% 35%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 18 95% 54%;
+
+    --radius: 0.375rem;
+
+    --terminal-bg: 0 0% 6%;
+    --terminal-fg: 0 0% 92%;
+    --terminal-border: 0 0% 18%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(18 95% 54%), hsl(28 100% 58%));
+    --shadow-soft: 0 1px 0 hsl(0 0% 0% / 0.04), 0 1px 2px hsl(0 0% 0% / 0.04);
+    --shadow-elevated: 0 8px 24px hsl(0 0% 0% / 0.08);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.3), 0 0 24px hsl(var(--primary) / 0.2);
+
+    --transition-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .dark {
+    /* Dark = deep charcoal with vibrant orange */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 96%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 96%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary: 18 100% 58%;
+    --primary-foreground: 0 0% 4%;
+    --primary-glow: 22 100% 62%;
+
+    --secondary: 0 0% 11%;
+    --secondary-foreground: 0 0% 96%;
+
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 18 80% 14%;
+    --accent-foreground: 18 100% 70%;
+
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 96%;
+
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 18 100% 58%;
+
+    --terminal-bg: 0 0% 6%;
+    --terminal-fg: 0 0% 92%;
+    --terminal-border: 0 0% 18%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(18 100% 55%), hsl(24 100% 60%));
+    --shadow-soft: 0 1px 0 hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 8px 32px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 0 28px hsl(var(--primary) / 0.25);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-terminal-fg { color: hsl(var(--terminal-fg)); }
+  .bg-terminal { background-color: hsl(var(--terminal-bg)); }
+  .border-terminal { border-color: hsl(var(--terminal-border)); }
+
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: -1px -1px;
+  }
+
+  .animate-fade-in { animation: fadeIn 0.5s var(--transition-smooth) both; }
+  .animate-slide-up { animation: slideUp 0.4s var(--transition-smooth) both; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: '▊';
+  margin-left: 2px;
+  color: hsl(var(--primary));
+  animation: blink 1s step-end infinite;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, hsl(var(--muted)) 0%, hsl(var(--secondary)) 50%, hsl(var(--muted)) 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
