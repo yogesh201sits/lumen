@@ -17,12 +17,13 @@ export default async function runSearch(query) {
     const client = new Seltz({ apiKey });
 
     const result = await client.search(query, 1);
-    console.log(result)
+    console.log("Search completed successfully");
     return result;
 
 
   } catch (err) {
-    console.error("Error:", err.message);
+    console.error("Error in search service:", err.message);
+    throw err; // Re-throw to let caller handle
   }
 
 }
