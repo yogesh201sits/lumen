@@ -20,14 +20,19 @@ app.post("/conversation", async(req, res) => {
     });
   }
 
-  const searchRes = await runSearch(query);
-  const parsed = transformDocuments(searchRes.documents);
-  const urls = parsed.urls;
-  const context = parsed.contents;
+  try {
+    const searchRes = await runSearch(query);
+    const parsed = transformDocuments(searchRes.documents);
+    const urls = parsed.urls;
+    const context = parsed.contents;
 
-  const result = await resLlm(query,context);
+    const result = await resLlm(query,context);
 
-  return res.json({result,urls});
+    return res.json({result,urls});
+  } catch (error) {
+    console.error("Error processing conversation:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 
 });
 
