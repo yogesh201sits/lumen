@@ -11,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.post("/conversation", async(req, res) => {
+  console.log("Received conversation request:", req.body);
   const { query } = req.body;
 
   if (!query) {
