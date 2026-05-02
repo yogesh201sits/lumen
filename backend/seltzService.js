@@ -1,11 +1,12 @@
 // Search service using Seltz API
 import dotenv from "dotenv";
+import { logInfo, logError } from './utils/logger.js'
 dotenv.config();
 
 import { Seltz } from "seltz";
 
 export default async function runSearch(query) {
-  console.log("Running search for query:", query);
+  logInfo("Running search for query", { query });
   
     try {
     const apiKey = process.env.SELTZ_API_KEY;
@@ -17,12 +18,12 @@ export default async function runSearch(query) {
     const client = new Seltz({ apiKey });
 
     const result = await client.search(query, 1);
-    console.log("Search completed successfully");
+    logInfo("Search completed successfully");
     return result;
 
 
   } catch (err) {
-    console.error("Error in search service:", err.message);
+    logError("Error in search service", err.message);
     throw err; // Re-throw to let caller handle
   }
 
