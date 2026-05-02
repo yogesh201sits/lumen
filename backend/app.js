@@ -4,6 +4,7 @@ import cors from "cors";
 import resLlm from "./llm.js";
 import runSearch from "./seltzService.js";
 import transformDocuments from './utils/parseSearc.js'
+import { logInfo, logError } from './utils/logger.js'
 
 const app = express();
 const PORT = 3000;
@@ -17,7 +18,7 @@ app.get("/health", (req, res) => {
 });
 
 app.post("/conversation", async(req, res) => {
-  console.log("Received conversation request:", req.body);
+  logInfo("Received conversation request", req.body);
   const { query } = req.body;
 
   if (!query) {
@@ -36,13 +37,13 @@ app.post("/conversation", async(req, res) => {
 
     return res.json({result,urls});
   } catch (error) {
-    console.error("Error processing conversation:", error);
+    logError("Error processing conversation", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Health check available at http://localhost:${PORT}/health`);
+  logInfo(`Server running on http://localhost:${PORT}`);
+  logInfo(`Health check available at http://localhost:${PORT}/health`);
 });
