@@ -1,3 +1,4 @@
+// Backend server for Perplexity-style AI assistant
 import express from "express";
 import cors from "cors";
 import resLlm from "./llm.js";
