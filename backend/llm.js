@@ -1,3 +1,4 @@
+// LLM integration module using ChatGroq
 import { ChatGroq } from "@langchain/groq";
 import { StructuredOutputParser } from "@langchain/core/output_parsers";
 import * as z from "zod";
