@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
+import { Show, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
 import SearchBar from "@/components/SearchBar";
 import ChatHistory, { ChatTurn } from "@/components/ChatHistory";
 import HistorySidebar from "@/components/HistorySidebar";
@@ -20,6 +20,7 @@ const SUGGESTIONS = [
 ];
 
 const Index = () => {
+  const { user, isLoaded } = useUser();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -30,22 +31,28 @@ const Index = () => {
     document.documentElement.classList.remove("dark");
   }, []);
 
-  // Load persisted conversations
+  // Load persisted conversations only when user is signed in
   useEffect(() => {
+    if (!isLoaded) return;
+    if (!user) {
+      setConversations([]);
+      return;
+    }
     const load = async () => {
       const stored = await loadConversations();
       setConversations(stored);
     };
     load();
-  }, []);
+  }, [user, isLoaded]);
 
   // Persist on change
   useEffect(() => {
+    if (!user) return;
     const save = async () => {
       await saveConversations(conversations);
     };
     save();
-  }, [conversations]);
+  }, [conversations, user]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -115,6 +122,7 @@ const Index = () => {
       console.log('Making API call to http://localhost:3000/conversation with query:', query);
       const res = await fetch("http://localhost:3000/conversation", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
       });
@@ -182,6 +190,33 @@ const Index = () => {
           sidebarOpen ? "md:ml-72" : "md:ml-12"
         )}
       >
+        {!isLoaded ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+              <p className="text-muted-foreground">Loading...</p>
+            </div>
+          </div>
+        ) : !user ? (
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center space-y-4">
+              <p className="text-lg font-semibold">Sign in to continue</p>
+              <p className="text-muted-foreground mb-6">You need to be signed in to use the chat.</p>
+              <div className="flex gap-3 justify-center">
+                <SignInButton mode="modal">
+                  <button className="rounded-sm border border-border bg-primary text-primary-foreground px-4 py-2 font-semibold transition hover:opacity-90">
+                    Sign in
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="rounded-sm border border-border bg-card px-4 py-2 text-foreground transition hover:border-primary hover:text-primary">
+                    Sign up
+                  </button>
+                </SignUpButton>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
        <header className="sticky top-0 z-20 h-14 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-full max-w-5xl items-center justify-between px-4">
 
@@ -305,6 +340,8 @@ const Index = () => {
               <SearchBar ref={inputRef} onSubmit={(q) => runQuery(q)} />
             </div>
           </div>
+        )}
+          </>
         )}
       </main>
     </div>

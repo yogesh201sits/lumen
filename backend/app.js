@@ -13,9 +13,31 @@ import Conversation from './models/Conversation.js'
 const app = express();
 const PORT = 3000;
 
-app.use(cors({ origin: true, credentials: true }));
+const allowedOrigins = ["http://localhost:5173", "http://localhost:8080", "http://localhost:3000"];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 app.use(clerkMiddleware());
+app.use((req, res, next) => {
+  const auth = getAuth(req);
+  req.auth = {
+    userId: auth.userId || null,
+    sessionId: auth.sessionId || null,
+    orgId: auth.orgId || null,
+  };
+  logInfo("Auth middleware - userId:", auth.userId);
+  next();
+});
 
 // Connect to MongoDB
 connectDB();
@@ -25,10 +47,42 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-app.post("/conversation", requireAuth(), async (req, res) => {
+// Debug auth endpoint
+app.get("/auth/debug", (req, res) => {
+  const auth = getAuth(req);
+  logInfo("Auth debug request", {
+    clerkUserId: auth.userId,
+    clerkSessionId: auth.sessionId,
+    clerkOrgId: auth.orgId,
+    reqAuthUserId: req.auth?.userId,
+    hasCookie: !!req.headers.cookie,
+    cookieHeader: req.headers.cookie ? "Present" : "Missing",
+  });
+  res.json({
+    auth: req.auth,
+    clerkAuth: {
+      userId: auth.userId,
+      sessionId: auth.sessionId,
+      orgId: auth.orgId,
+    },
+    cookies: req.headers.cookie ? "Present" : "Missing",
+    message: "Sign in via the frontend first if userId is null",
+  });
+});
+
+// Test endpoint (no auth required)
+app.get("/test", (req, res) => {
+  res.json({ message: "Backend is working", timestamp: new Date().toISOString() });
+});
+
+app.post("/conversation", async (req, res) => {
   logInfo("Received conversation request", req.body);
   const { query } = req.body;
-  const { userId } = getAuth(req);
+  const auth = req.auth;
+
+  if (!auth?.userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
   if (!query) {
     return res.status(400).json({
@@ -43,7 +97,7 @@ app.post("/conversation", requireAuth(), async (req, res) => {
     const context = parsed.contents;
     const result = await resLlm(query, context);
 
-    logInfo("Conversation request completed", { userId, query });
+    logInfo("Conversation request completed", { auth, query });
 
     return res.json({ result, urls });
   } catch (error) {
@@ -53,10 +107,13 @@ app.post("/conversation", requireAuth(), async (req, res) => {
 });
 
 // Conversations endpoints
-app.get("/conversations", requireAuth(), async (req, res) => {
+app.get("/conversations", async (req, res) => {
   try {
-    const { userId } = getAuth(req);
-    const conversations = await Conversation.find({ userId }).sort({ createdAt: -1 });
+    const auth = req.auth;
+    if (!auth?.userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const conversations = await Conversation.find({ userId: auth.userId }).sort({ createdAt: -1 });
     res.json(conversations);
   } catch (error) {
     logError("Error loading conversations", error);
@@ -64,20 +121,25 @@ app.get("/conversations", requireAuth(), async (req, res) => {
   }
 });
 
-app.post("/conversations", requireAuth(), async (req, res) => {
+app.post("/conversations", async (req, res) => {
   try {
     const conversations = req.body; // array of conversations
     if (!Array.isArray(conversations)) {
       return res.status(400).json({ error: "Expected array of conversations" });
     }
-    const { userId } = getAuth(req);
+    const auth = req.auth;
+    if (!auth?.userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
 
     const conversationsForUser = conversations.map((conversation) => ({
       ...conversation,
-      userId,
+      userId: auth.userId,
+      sessionId: auth.sessionId,
+      orgId: auth.orgId,
     }));
 
-    await Conversation.deleteMany({ userId });
+    await Conversation.deleteMany({ userId: auth.userId });
     await Conversation.insertMany(conversationsForUser);
     res.json({ message: "Conversations saved" });
   } catch (error) {

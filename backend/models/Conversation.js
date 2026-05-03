@@ -18,6 +18,8 @@ const chatTurnSchema = new mongoose.Schema({
 const conversationSchema = new mongoose.Schema({
   id: { type: String, required: true },
   userId: { type: String, required: true, index: true },
+  sessionId: { type: String },
+  orgId: { type: String },
   title: { type: String, required: true },
   createdAt: { type: Number, required: true },
   turns: [chatTurnSchema]
