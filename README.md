@@ -1,4 +1,4 @@
-# PerpWeb
+# lumen
 
 <img src="./frontend/public/logo.png" alt="Logo" width="150">
 
@@ -38,7 +38,7 @@ A Perplexity-style AI assistant web application with real-time search capabiliti
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd perpWeb
+cd lumen
 ```
 
 2. Install backend dependencies:
