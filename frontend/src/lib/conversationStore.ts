@@ -7,22 +7,30 @@ export type Conversation = {
   turns: ChatTurn[];
 };
 
-const KEY = "lumen.conversations.v1";
+const API_BASE = "http://localhost:3000";
 
-export function loadConversations(): Conversation[] {
+export async function loadConversations(): Promise<Conversation[]> {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as Conversation[];
+    const res = await fetch(`${API_BASE}/conversations`, {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to load conversations");
+    return await res.json();
   } catch {
     return [];
   }
 }
 
-export function saveConversations(conversations: Conversation[]) {
+export async function saveConversations(conversations: Conversation[]): Promise<void> {
   try {
-    localStorage.setItem(KEY, JSON.stringify(conversations));
+    const res = await fetch(`${API_BASE}/conversations`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(conversations),
+    });
+    if (!res.ok) throw new Error("Failed to save conversations");
   } catch {
-    /* ignore quota errors */
+    /* ignore errors */
   }
 }

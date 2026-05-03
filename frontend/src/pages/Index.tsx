@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/react";
 import SearchBar from "@/components/SearchBar";
 import ChatHistory, { ChatTurn } from "@/components/ChatHistory";
 import HistorySidebar from "@/components/HistorySidebar";
@@ -31,13 +32,19 @@ const Index = () => {
 
   // Load persisted conversations
   useEffect(() => {
-    const stored = loadConversations();
-    setConversations(stored);
+    const load = async () => {
+      const stored = await loadConversations();
+      setConversations(stored);
+    };
+    load();
   }, []);
 
   // Persist on change
   useEffect(() => {
-    saveConversations(conversations);
+    const save = async () => {
+      await saveConversations(conversations);
+    };
+    save();
   }, [conversations]);
 
   useEffect(() => {
@@ -176,34 +183,49 @@ const Index = () => {
         )}
       >
        <header className="sticky top-0 z-20 h-14 border-b border-border bg-background/80 backdrop-blur-xl">
-  <div className="mx-auto flex h-full max-w-5xl items-center justify-between px-4">
+      <div className="mx-auto flex h-full max-w-5xl items-center justify-between px-4">
 
-    {/* Left side: Logo + Brand */}
-    <div className="flex items-center gap-2">
+        {/* Left side: Logo + Brand */}
+        <div className="flex items-center gap-2">
 
-      {/* Fixed-size logo wrapper (prevents layout shift) */}
-      <div className="h-14 w-14 flex-shrink-0">
-        <img
-          src="/logo.png"
-          alt="Logo"
-          className="h-full w-full object-contain rounded-lg"
-        />
+          {/* Fixed-size logo wrapper (prevents layout shift) */}
+          <div className="h-14 w-14 flex-shrink-0">
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="h-full w-full object-contain rounded-lg"
+            />
+          </div>
+
+          <span className="font-mono text-lg font-semibold tracking-tight">
+            lumen<span className="text-primary">.</span>sh
+          </span>
+
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <button className="rounded-sm border border-border bg-card px-3 py-1.5 text-sm text-foreground transition hover:border-primary hover:text-primary">
+                Sign in
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="rounded-sm border border-border bg-card px-3 py-1.5 text-sm text-foreground transition hover:border-primary hover:text-primary">
+                Sign up
+              </button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton />
+          </Show>
+          <kbd className="hidden rounded-sm border border-border bg-card px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground md:inline">
+            {isMac ? "⌘" : "Ctrl"} K
+          </kbd>
+        </div>
+
       </div>
-
-      <span className="font-mono text-lg font-semibold tracking-tight">
-        lumen<span className="text-primary">.</span>sh
-      </span>
-
-
-    </div>
-
-    {/* Right side: Shortcut */}
-    <kbd className="hidden rounded-sm border border-border bg-card px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground md:inline">
-      {isMac ? "⌘" : "Ctrl"} K
-    </kbd>
-
-  </div>
-</header>
+    </header>
 
        <div className="mx-auto w-full max-w-5xl px-4">
   {isEmpty ? (

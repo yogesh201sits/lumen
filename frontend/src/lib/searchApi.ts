@@ -11,6 +11,7 @@ export async function search(query: string): Promise<SearchResponse> {
   console.log('Making API call to http://localhost:3000/conversation with query:', query);
   const res = await fetch("http://localhost:3000/conversation", {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query }),
   });

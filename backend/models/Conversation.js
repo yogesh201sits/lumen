@@ -16,11 +16,14 @@ const chatTurnSchema = new mongoose.Schema({
 }, { _id: false });
 
 const conversationSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true },
+  userId: { type: String, required: true, index: true },
   title: { type: String, required: true },
   createdAt: { type: Number, required: true },
   turns: [chatTurnSchema]
 });
+
+conversationSchema.index({ id: 1, userId: 1 }, { unique: true });
 
 const Conversation = mongoose.model('Conversation', conversationSchema);
 
